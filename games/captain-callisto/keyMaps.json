@@ -1,0 +1,14 @@
+[
+  {
+    "from": "8",
+    "to": " ",
+    "label": "Num 8",
+    "action": "Jump"
+  },
+  {
+    "from": "0",
+    "to": "x",
+    "label": "Num 0",
+    "action": "Jetpack"
+  }
+]

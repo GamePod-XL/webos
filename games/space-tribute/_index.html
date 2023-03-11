@@ -1,0 +1,2048 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Space Tribute</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script src="../../webOSTVjs-1.2.4/webOSTV.js" charset="utf-8"></script>
+    <script src="../../webOSTVjs-1.2.4/webOSTV-dev.js" charset="utf-8"></script>
+		<script src="jsfxr.js"></script>
+		<style type="text/css">
+			html, body {
+				height:100%;
+			}
+			body {
+				background-color:#000;
+				margin:0;
+			}
+			canvas {
+				max-width:100%;
+				max-height:100%;
+				margin:0 auto;
+				display:block;
+			}
+			</style>
+		<script>
+	
+			var g;
+			var rad = [];
+var bonusList = [];
+var imgs = [];
+bonusList[1] = {letter:"X", name:"explosion"};
+bonusList[2] = {letter:"P", name:"armor"};
+bonusList[3] = {letter:"T", name:"armor"};
+
+	
+/**
+ * EXPLOSION object
+ * @param {float} x
+ * @param {float} y
+ * @param {array} color Color of this explosion [red,greend,blue]
+ * @param {float} factorSize 1 mean 1 pixel for each particles. 2 mean 2...
+ * @param {float} gravity 0 mean no gravity. 0.05 look like heart acceleration. Optional
+ * @returns {EXPLOSION}
+ */
+EXPLOSION = function(x, y, color, size, gravity) {
+	this.x = x;
+	this.y = y;
+	this.color = color;
+	this.size = size;
+	this.opacity = 1;
+	this.pixels = [];
+	this.gravity = gravity ? gravity : 0;
+	for (var x=0; x<34; x+=3) {
+		for (var y=0; y<24; y+=3) {
+			var pixel = {};
+			pixel.x = this.x+x;
+			pixel.y = this.y+y;
+			pixel.tx = (x-17)*(Math.random()-0.5);
+			pixel.ty = (y-10)*(Math.random()-0.5);
+			pixel.r = Math.floor(Math.random()*256);
+			pixel.g = Math.floor(Math.random()*256);
+			pixel.b = Math.floor(Math.random()*256);
+			
+			this.pixels.push(pixel);
+		}
+	}
+	/**
+	 * Update position of all particles of the explosion each frame
+	 * @returns {boolean} false if the explosion must be remove. True otherwise
+	 */
+	this.update = function() {
+		this.opacity-=0.01;
+		if (this.opacity<=0) { return false; }
+		ctx.fillStyle = "rgba("+this.color[0]+","+this.color[1]+","+this.color[2]+","+this.opacity+")";
+		for (var i=0; i<this.pixels.length; i++) {
+			var p = this.pixels[i];
+			//ctx.fillStyle = "rgba("+p.r+","+p.g+","+p.b+","+this.opacity+")";
+			ctx.fillStyle = "rgba("+Math.floor(255-255*(1-this.opacity))+","+Math.floor(255-255*(1-this.opacity))+",255,"+this.opacity+")";
+			p.ty+=this.gravity;
+			p.x+=p.tx;
+			p.y+=p.ty;
+			ctx.fillRect(p.x,p.y,2*this.size,2*this.size); 
+		}
+		return true;
+	}
+}
+
+
+WEAPON_LASERPLAYER = function() {
+	this.width = 20;
+	this.height = 4;
+	this.speed = 40;
+	this.fromPlayer = true;
+	this.draw = function() {
+		ctx.beginPath();
+		ctx.lineWidth = 4;
+		ctx.moveTo(this.x,this.y);
+		ctx.lineTo(this.x+Math.sin(this.angle)*this.width,this.y-Math.cos(this.angle)*this.width);
+		ctx.strokeStyle = "#00F";
+		ctx.stroke(); 
+		
+		
+		
+	}
+	WEAPON.apply(this, arguments);
+}
+WEAPON_FIREBALLPLAYER = function() {
+	this.width = 20;
+	this.height = 4;
+	this.speed = 40;
+	this.fromPlayer = true;
+	this.draw = function() {
+		ctx.beginPath();
+		ctx.arc(this.x+20, this.y, 5, 0, 2 * Math.PI, false);
+		ctx.fillStyle = '#ED5615';
+		ctx.fill();
+	}
+	WEAPON.apply(this, arguments);
+}
+WEAPON_LASER = function() {
+	this.width = 20;
+	this.height = 4;
+	this.speed = 10;
+	this.aimToPlayer = true;
+	
+	this.draw = function() {
+		ctx.fillStyle = "#F00";
+		ctx.beginPath();
+		ctx.lineWidth = 4;
+		ctx.moveTo(this.x,this.y);
+		ctx.lineTo(this.x+Math.sin(this.angle)*this.width,this.y-Math.cos(this.angle)*this.width);
+		ctx.strokeStyle = "#F00";
+		ctx.stroke(); 
+	}
+	WEAPON.apply(this, arguments);
+}
+WEAPON_FIREBALL = function() {
+	this.width = 5;
+	this.height = 5;
+	this.speed = 15;
+	this.aimToPlayer = true;
+	
+	this.draw = function() {
+		ctx.beginPath();
+		ctx.arc(this.x+20, this.y, 5, 0, 2 * Math.PI, false);
+		ctx.fillStyle = '#EB1DEB';
+		ctx.fill();
+	}
+	WEAPON.apply(this, arguments);
+}
+WEAPON_NUNCHUNK = function() {
+	this.width = 20;
+	this.height = 4;
+	this.speed = 15;
+	this.aimToPlayer = false;
+	this.round = 0;
+	
+	this.draw = function() {
+		this.round-=0.1;
+		
+		
+		ctx.fillStyle = "#FFF";
+		ctx.beginPath();
+		ctx.lineWidth = 4;
+		ctx.moveTo(this.x+Math.sin(this.round)*-this.width,this.y-Math.cos(this.round)*-this.width);
+		ctx.lineTo(this.x+Math.sin(this.round)*this.width,this.y-Math.cos(this.round)*this.width);
+		ctx.strokeStyle = "#FFF";
+		ctx.stroke(); 
+		
+		
+		ctx.beginPath();
+		ctx.arc(this.x+Math.sin(this.round)*-this.width, this.y-Math.cos(this.round)*-this.width, 5, 0, 2 * Math.PI, false);
+		ctx.fillStyle = '#EEE';
+		ctx.fill();
+		
+		ctx.beginPath();
+		ctx.arc(this.x+Math.sin(this.round)*this.width, this.y-Math.cos(this.round)*this.width, 5, 0, 2 * Math.PI, false);
+		ctx.fillStyle = '#EEE';
+		ctx.fill();
+		
+	}
+	WEAPON.apply(this, arguments);
+}
+WEAPON_HARPOON = function() {
+	this.width = 20;
+	this.height = 10;
+	this.speed = 30;
+	this.aimToPlayer = true;
+	
+	this.draw = function() {
+		this.round-=0.1;
+		
+		
+		ctx.fillStyle = "#FFF";
+		ctx.beginPath();
+		ctx.lineWidth = 10;
+		ctx.moveTo(this.x,this.y);
+		ctx.lineTo(this.x+Math.sin(this.angle)*this.width,this.y-Math.cos(this.angle)*this.width);
+		ctx.strokeStyle = "#FFF";
+		ctx.stroke(); 
+		
+		
+	}
+	WEAPON.apply(this, arguments);
+}
+WEAPON_BOSS = function() {
+	this.width = 20;
+	this.height = 4;
+	this.speed = 20;
+	this.aimToPlayer = false;
+	this.homing = true;
+	this.draw = function() {
+		ctx.fillStyle = "#FF4F00";
+		ctx.beginPath();
+		ctx.lineWidth = 12;
+		ctx.moveTo(this.x,this.y);
+		ctx.lineTo(this.x+Math.sin(this.angle)*this.width,this.y-Math.cos(this.angle)*this.width);
+		ctx.strokeStyle = "#FF4F00";
+		ctx.stroke(); 
+	}
+	WEAPON.apply(this, arguments);
+}
+WEAPON = function(x, y, angle, type) {
+	this.x = x;
+	this.y = y;
+	this.type = type;
+	this.angle = angle;
+	this.update = function() {
+		if (this.homing) {
+			
+			var b = bearing(GAME.player.x+50, GAME.player.y+30, this.x, this.y);
+			if (this.angle > b) {
+				if ((this.angle - b) >0.03) {
+					b = this.angle-0.02;
+				}
+			} else if (this.angle < b) {
+				if ((b - this.angle) >0.02) {
+					b = this.angle+0.02;
+				}
+			}
+			this.angle = b;
+		}
+		this.x += Math.sin(this.angle)*this.speed*GAME.speed;
+		this.y -= Math.cos(this.angle)*this.speed*GAME.speed;
+		
+		if (this.x<-50) { return false; }
+		if (this.x>2000) { return false; }
+		if (this.fromPlayer) {
+			for (var i=0; i<GAME.monsters.length; i++) {
+				var m = GAME.monsters[i];
+				if (this.x>m.x && this.x<m.x+m.trueWidth && this.y>m.y && this.y<m.y+m.trueHeight) {
+					m.life--;
+					if (m.life<=0) {
+						m.explode();
+					} else {
+						sound([3,,0.1379,0.4076,0.35,0.1342,,-0.3958,,,,,,,,,0.535,-0.2877,1,,,,,0.5]);
+		
+						GAME.addExplosion(m.x+Math.random()*50, m.y+Math.random()*70, [127+Math.floor(Math.random()*127),127+Math.floor(Math.random()*127),127+Math.floor(Math.random()*127)], 1); 
+					}
+					return false;
+				}
+			}
+		} else {
+			if (GAME.player.armor) {
+				if (Math.hypot(this.x-(GAME.player.x+50), this.y-(GAME.player.y+30))<100) {
+					sound([0,,0.0967,0.4264,0.2902,0.458,,-0.3199,,,,0.5693,0.6278,,,,,,1,,,,,0.5]);
+					GAME.player.touch=10;
+					GAME.player.armor-=20;
+					return false;
+				}
+			} else {
+				if (this.x>GAME.player.x && this.x<GAME.player.x+100 && this.y>GAME.player.y && this.y<GAME.player.y+60) {
+					GAME.player.life-=10;
+					sound([3,,0.2436,0.5091,0.252,0.0334,,0.2411,,,,,,,,,,,1,,,,,0.5]);
+					return false;
+				}
+			}
+		}
+		this.draw();
+		return true;
+	}
+	this.init = function() {
+		if (this.aimToPlayer) {
+			this.angle = bearing(GAME.player.x+50,GAME.player.y+30, this.x, this.y);
+		}
+		if (!this.angle) {
+			if (this.fromPlayer) {
+				this.angle = Math.PI/2;
+			} else {
+				this.angle = -Math.PI/2;	
+			}
+		}
+	}
+	this.init();
+}
+
+bearing = function (x1, y1, x2, y2) {
+	return Math.atan2(x1 - x2, y2 - y1);
+}
+
+monsters = [];
+monsters[1] = { //Space invader
+	colors:[,"#EDED2D"],
+	sprite:"11:011000001100001000100000111111100011011101101111111111111111111111011111111100101000101010011011001",
+	factor:8,
+	weapon:"FIREBALL",
+	reloadingTime:80
+}
+monsters[2] = { //Space invader
+	colors:[,"#EB1DEB"],
+	sprite:"9:000111000001111100011111110011010110111111111111111111011111110001000100010000010001000100",
+	factor:8,
+	weapon:"FIREBALL",
+	reloadingTime:80
+}
+monsters[3] = { //Space invader
+	colors:[,"#30EDED"],
+	sprite:"12:000011110000001111111100011111111110111001100111111111111111011111111110001111111100000110011000001001100100000100001000",
+	factor:8,
+	weapon:"FIREBALL",
+	reloadingTime:80
+}
+monsters[4] = { //tie
+	colors:[,"#FFF"],
+	sprite:"20:0011000000000000110001100000000000000110011000000000000001101100000000000000001111000000000000000011110000011111100000111100001101101100001111000110011001100011111001001001001001111111110100001011111111111101000010111111111001001001001001111100011001100110001111000011011011000011110000011111100000111100000000000000001111000000000000000011011000000000000001100110000000000000011000110000000000001100",
+	factor:3,
+	weapon:"LASER",
+	reloadingTime:80
+}
+
+monsters[5] = { //PacMan ghost
+	colors:[,"#FFA000"],
+	sprite:"14:000001111000000001111111100000111111111100011111001111101111100001111011110000001110111101100011111111011000111111111000011111111111001111111111111111111111111111111111111111111111111101110011101110001100110001",
+	factor:4,
+	weapon:"LASER",
+	reloadingTime:80
+}	
+monsters[6] = { //PacMan
+	colors:[,"#FF0"],
+	sprite:"12:000111110000011111111100111111111110111111111110001111111111000001111111001111111111111111111110111111111110011111111100000111110000",
+	factor:4,
+	weapon:"NUNCHUNK",
+	reloadingTime:80
+}	
+monsters[7] = { //Tetris
+	colors:[,"#0FF"],
+	sprite:"4:1111",
+	factor:30,
+	weapon:"HARPOON",
+	reloadingTime:80
+}		
+monsters[8] = { //Tetris
+	colors:[,"#FF0"],
+	sprite:"2:1111",
+	factor:30,
+	weapon:"FIREBALL",
+	reloadingTime:80
+}		
+monsters[9] = { //Tetris
+	colors:[,"#A0F"],
+	sprite:"3:111010",
+	factor:30,
+	weapon:"FIREBALL",
+	reloadingTime:80
+}		
+monsters[10] = { //Tetris
+	colors:[,"#FFA500"],
+	sprite:"2:010111",
+	factor:30,
+	weapon:"FIREBALL",
+	reloadingTime:80
+}		
+monsters[11] = { //Tetris
+	colors:[,"#F00"],
+	sprite:"3:110011",
+	factor:30,
+	weapon:"FIREBALL",
+	reloadingTime:80
+}	
+monsters[12] = { //Duckhunt
+	colors:[,"#444","#fac81b","#F00"],
+	sprite:"30:000000001111100000000000000000000000112222211000000000000000000001222222222101100000000000000001222222222212100000000000000012211222222222100000000000000012211222222221000000000000333012211222222210000000000000333332222222222210000000000000033333222222222210000000000000033333322222222210000000000000033001222222222100000000000000000000122222222100000000000000000000012222221000000000000011000000012222222111000000000121000001122222222222110000001221000012222222222222221111112221000012222221112222222222222210000122222112221112212222222210000122221222222211121222222100000122221222222222221222222100000122221222222222221222221000000122221222222222212222221000000012222122222222122222210000000012222122222221222222100000000001122211111112222211000000000000011222222222211100000000000000000111111111100000000000",
+	factor:2,
+	weapon:"FIREBALL",
+	reloadingTime:80
+}	
+
+monsters[13] = { //Super mario
+	colors: [,"#c84c0c","#444","#F4d4b4"],
+	sprite:"16:00000011110000000000011111100000000011111111000000011111111110000011211111221100011132111231111001113222223111101111323132311111111133313331111111111111111111110111133333311110011113233331111000003322223330000022232332233000022222333333220002222220002222200022222000222200",
+	factor:4,
+	weapon:"FIREBALL",
+	reloadingTime:80
+}		
+monsters[14] = { //Lemmings
+	colors: [,"#FF0","#4040E0","#F0D0D0","#00B0B0"],
+	sprite:"9:000111000011111110121212121000020000000020000000234440000034344000034330000022200000022230000022203003222000003222000000022000000003300",
+	factor:4,
+	weapon:"FIREBALL",
+	reloadingTime:80
+}
+monsters[15] = { //Worms
+	colors: [,"#2c2b2c","#ea9783","#FFF"],
+	sprite:"15:001110000000000012221000000000122222100000000132332210000000113132210000000113132210000000133322100000000012222100000000001122211100000012222222211110012222222222221001222221111221000111110000110",
+	factor:4,
+	weapon:"FIREBALL",
+	reloadingTime:8
+}	
+monsters[16] = { //BOSS
+	weapon:"BOSS",
+	reloadingTime:80,
+	life:40
+}	
+
+drawSpriteToImg = function(ID) {
+	var m = monsters[ID];
+	
+	var def = m.sprite.split(":");
+	var width = def[0];
+	var pixels = def[1];
+	var height = pixels.length / width;
+	var trueWidth = width*m.factor;
+	var trueHeight = height*m.factor;
+	
+	var index = 0;
+	var canvas2=document.createElement("canvas");
+	canvas2.width=trueWidth;
+	canvas2.height=trueHeight
+	var ctx2=canvas2.getContext("2d");
+	for (y=0; y<pixels.length/width; y++) {
+		for (x=0; x<width; x++) {
+			c = m.colors[pixels[index]];
+			index++
+			ctx2.fillStyle = c;
+			if (!c) {
+				continue;
+			}
+			ctx2.fillRect(x*m.factor,y*m.factor,m.factor,m.factor); 
+		}
+	}
+	
+	imgs[ID] = new Image();
+	imgs[ID].src = canvas2.toDataURL("image/png");
+	
+	
+}
+PATH1 = {
+	init:function(obj) {
+		obj.round = -Math.PI;
+		obj.tx = obj.type==16 ? -2 : Math.random()*-8-1;
+	},
+	update:function(obj) {
+		obj.round+=0.01*GAME.speed;
+		obj.x+=obj.tx*GAME.speed;
+		obj.y+=Math.sin(obj.round)*GAME.speed;
+	}
+}
+PATH2 = {
+	init:function(obj) {
+		obj.round = -Math.PI;
+	},
+	update:function(obj) {
+		obj.round+=0.01;
+		obj.speed = 2;
+		obj.x+=(Math.cos(obj.round))*obj.speed*GAME.speed;
+		obj.y+=(Math.sin(obj.round))*obj.speed*GAME.speed;
+		obj.x-=1*GAME.speed;
+	}
+}
+PATH3 = {
+	init:function(obj) {
+		obj.round = -Math.PI;
+		obj.animStarted = false;
+		obj.speed = 2;
+	},
+	update:function(obj) {
+		if (obj.x<800) {
+			obj.animStarted = true;
+		}
+		if (obj.animStarted) {
+			obj.speed = 8;
+			obj.round+=obj.speed/200*GAME.speed;
+			if (obj.round>=1*Math.PI) {
+				obj.round = 1*Math.PI;
+			}
+
+			obj.x+=(Math.cos(obj.round))*obj.speed*GAME.speed;
+			obj.y+=(Math.sin(obj.round))*obj.speed*GAME.speed;
+			obj.x-=1*GAME.speed;
+		} else {
+			obj.speed = 8;
+			obj.x-=obj.speed*GAME.speed;
+		}
+	}
+}
+PATH4 = {
+	init:function(obj) {
+		obj.round = Math.PI;
+		obj.animStarted = false;
+		obj.speed = 2;
+	},
+	update:function(obj) {
+		if (obj.x<800) {
+			obj.animStarted = true;
+		}
+		if (obj.animStarted) {
+			obj.speed = 8;
+			obj.round-=obj.speed/200*GAME.speed;
+			if (obj.round<=-Math.PI) {
+				obj.round = -Math.PI;
+			}
+
+			obj.x+=(Math.cos(obj.round))*obj.speed*GAME.speed;
+			obj.y+=(Math.sin(obj.round))*obj.speed*GAME.speed;
+			obj.x-=1*GAME.speed;
+		} else {
+			obj.speed = 8;
+			obj.x-=obj.speed*GAME.speed;
+		}
+	}
+}
+PATH5 = {
+	init:function(obj) {
+		obj.round = Math.PI;
+		obj.animStarted = false;
+		obj.speed = 2;
+	},
+	update:function(obj) {
+		if (obj.x<800) {
+			obj.animStarted = true;
+		}
+		if (obj.animStarted) {
+			obj.x-=obj.speed*GAME.speed;
+			obj.y+=obj.speed*GAME.speed;
+		} else {
+			obj.speed = 8;
+			obj.x-=obj.speed*GAME.speed;
+		}
+	}
+}
+PATH6 = {
+	init:function(obj) {
+		obj.round = Math.PI;
+		obj.animStarted = false;
+		obj.speed = 2;
+	},
+	update:function(obj) {
+		if (obj.x<800) {
+			obj.animStarted = true;
+		}
+		if (obj.animStarted) {
+			obj.x-=obj.speed*GAME.speed;
+			obj.y-=obj.speed*GAME.speed;
+		} else {
+			obj.speed = 8;
+			obj.x-=obj.speed*GAME.speed;
+		}
+	}
+}
+PATH7 = {
+	init:function(obj) {
+		obj.round = 0;
+		obj.speed = 2;
+	},
+	update:function(obj) {
+		obj.round+=0.05*GAME.speed;
+		obj.x-=obj.speed*GAME.speed;
+		obj.y-=(Math.sin(obj.round))*5*GAME.speed;
+		
+	}
+}
+
+/**
+ * MONSTER object
+ * @param {int} x
+ * @param {int} y
+ * @param {int} type
+ * @returns {MONSTER}
+ */
+MONSTER = function(x, y, type, pathID) {
+	this.x = x;
+	this.y = y;
+	this.type = type;
+	this.weapon = monsters[type].weapon;
+	this.reloadingTime = monsters[type].reloadingTime;
+	this.life = monsters[type].life ? monsters[type].life : 1;
+	this.path = window["PATH"+pathID];
+	if ( monsters[type].sprite) {
+		var def = monsters[type].sprite.split(":");
+		this.width = def[0];
+		this.pixels = def[1];
+		this.colors = monsters[type].colors;
+		this.height = this.pixels.length / this.width;
+		this.factor = monsters[type].factor;
+	} else {
+		this.width = 120;
+		this.factor = 1;
+		this.height = 150;
+	}
+
+	
+	this.trueWidth = this.width*this.factor;
+	this.trueHeight = this.height*this.factor;
+	this.glitchMode = this.type==16 ? {x:Math.random()*500-250, y:Math.random()*500-250, active:0} : false;
+	this.reload = 0;
+	
+	this.path.init(this);
+	
+	this.hit = function(hit) {
+		this.explode();
+		return false;		
+	}
+	/**
+	 * Explode the monster
+	 */
+	this.explode = function() {
+		score+=100;
+		sound([3,,0.3708,0.5822,0.3851,0.0584,,-0.0268,,,,-0.0749,0.7624,,,,,,1,,,,,0.5]);
+		
+		GAME.addExplosion(this.x, this.y, [127+Math.floor(Math.random()*127),127+Math.floor(Math.random()*127),127+Math.floor(Math.random()*127)], 2);
+		for (var i=0; i<GAME.monsters.length; i++) {
+			if (GAME.monsters[i]==this) {
+				GAME.monsters.splice(i,1);
+				return;
+			}
+		}
+	}
+	/**
+	 * Update position of the monster each frame
+	 * @returns {boolean} false if the monster must be remove. True otherwise
+	 */
+	this.update = function() {
+		
+		this.path.update(this);
+		if (this.x<-50) {
+			//GAME.addExplosion(this.x, this.y, [255,255,255], 4);
+			return false;
+		}
+		
+		
+		if (GAME.player.armor) {
+			if (Math.hypot(this.x-(GAME.player.x+50), this.y-(GAME.player.y+30))<100 || Math.hypot(this.x+this.trueWidth-(GAME.player.x+50), this.y+this.trueHeight-(GAME.player.y+30))<100) {
+				sound([0,,0.0967,0.4264,0.2902,0.458,,-0.3199,,,,0.5693,0.6278,,,,,,1,,,,,0.5]);
+				GAME.player.touch=10;
+				GAME.player.armor-=20;
+				this.explode();
+				return false;
+			}
+		} else {
+			if (this.x+this.trueWidth>GAME.player.x && this.x<GAME.player.x+100 && this.y+this.trueHeight>GAME.player.y && this.y<GAME.player.y+60) {
+				GAME.player.life-=10;
+				sound([3,,0.2436,0.5091,0.252,0.0334,,0.2411,,,,,,,,,,,1,,,,,0.5]);
+				this.explode();
+				return false;
+			}
+		}
+		
+		
+		
+		if (this.glitchMode && Math.random()>0.95) {
+			this.glitchMode.active = 1 - this.glitchMode.active;
+			
+			if (this.glitchMode.active) {
+				this.glitchMode = {x:Math.random()*500-250, y:Math.random()*500-250, active:1};
+				this.x += this.glitchMode.x;
+				this.y += this.glitchMode.y;
+			} else {
+				this.x -= this.glitchMode.x;
+				this.y -= this.glitchMode.y;
+			}
+			this.x = Math.max(500,this.x);
+			this.x = Math.min(1920,this.x);
+			this.y = Math.max(0,this.y);
+			this.y = Math.min(1000,this.y);
+		}
+		ctx.drawImage(imgs[this.type],this.x, this.y);
+		/*
+		if (this.glitchMode && this.glitchMode.active) {
+			ctx.drawImage(imgs[this.type],this.x+this.glitchMode.x, this.y+this.glitchMode.y);
+		} else {
+			ctx.drawImage(imgs[this.type],this.x, this.y);
+		}*/
+		this.reload--;
+		if (this.reload<1) {
+			this.reload = this.reloadingTime * (Math.max(1,(2/GAME.speed)));
+			if (GAME.player.life>0) {
+				if (this.type==16) {
+					var angle = bearing(GAME.player.x+50,GAME.player.y+30, this.x, this.y);
+					var nb=0;
+					for (i=angle-Math.PI/2; i<angle+Math.PI/2; i+=0.3) {
+						//setTimeout("GAME.addLaser("+this.x+", "+this.y+(this.trueHeight/2)+", "+this.weapon+", i)",100*i);
+						setTimeout(this.multipleShot.bind(this, i),100*nb);
+						nb++;
+						
+					}
+				} else {
+					GAME.addLaser(this.x, this.y+(this.trueHeight/2), this.weapon);
+				}
+			}
+		}
+		return true;
+	}
+	
+	this.multipleShot = function(a) {
+		sound([3,,0.1379,0.4076,0.35,0.1342,,-0.3958,,,,,,,,,0.535,-0.2877,1,,,,,0.5]);
+		GAME.addLaser(this.x,this.y+(this.trueHeight/2), this.weapon, a);
+	}
+}
+
+/**
+ * BONUS object
+ * @param {float} x
+ * @param {float} y
+ * @param {int} type
+ * @returns {BONUS}
+ */
+BONUS = function(x, y, type) {
+	this.x = x;
+	this.y = y;
+	this.type = type;
+	this.time = bonusList[this.type].time ? bonusList[this.type].time : 0;
+	this.round = 0;
+	
+	/**
+	 * Update position of the bonus
+	 * @returns {boolean} false if the bonus must be remove. True otherwise
+	 */
+	this.update = function() {
+		var i,p,toAdd,b,sizeBefore,grd;
+		this.x-=4;
+		
+		this.round+=0.025;
+		
+		this.y+=(Math.sin(this.round)*2);
+		
+		if (this.x<0) {
+			return false;
+		}
+		
+		p = GAME.player;
+		// Check if the player catch the bonus
+		if (this.x>p.x-30 && this.x<p.x+100 && this.y>p.y-30 && this.y<p.y+60) {
+
+
+			switch (this.type) {
+				case 2: 
+					sound([1,,0.0854,,0.78,0.1,,0.2148,,0.1027,0.2767,,,,,,,,1,,,,,0.5]);
+					GAME.player.armor = 300;
+					break;
+				case 1: 
+					sound([1,,0.01,,0.6,0.54,,0.1799,0.1999,0.15,0.02,-0.0999,0.52,,,0.15,,,1,,,,,0.5]);
+					GAME.player.explodeAll = {counter:50, x:p.x+50, y:p.y+30};
+					break;
+				case 3:
+					sound([2,,0.04,,0.75,0.43,0.2,,0.3999,0.44,,-0.7,0.27,0.7418,-0.1559,0.32,,-0.02,0.55,,,0.1776,,0.35]);
+
+					GAME.player.weapon = "triple";
+					GAME.player.weaponTime = 600;
+					break;
+			}
+			/*GAME.text = bonusList[this.type].name;
+			GAME.textX = 500;
+			GAME.textFrame = 0;
+			if (bonusList[this.type].time) {
+				GAME.setEffects(this.type);
+			}*/
+			return false;
+		}
+		
+		x = this.x;
+		y = this.y;
+		
+		g=ctx.createLinearGradient(x,y,x,y+20);
+		g.addColorStop(0,"#466BA9");
+		g.addColorStop(0.25,"#6FB5FF");
+		g.addColorStop(0.5,"#6FB5FF");
+		g.addColorStop(0.75,"#6FB5FF");
+		g.addColorStop(1,"#4772B8");
+
+		ctx.fillStyle = g;
+		ctx.lineWidth = 1;
+		ctx.strokeStyle = "rgba(37,60,99,0.5)";
+		
+		ctx.beginPath();
+		ctx.moveTo(x + 6, y);
+		ctx.lineTo(x + 24, y);
+		ctx.arcTo(x + 30, y, x+30, y + 6, 6);
+		ctx.lineTo(x + 30, y+24);
+		ctx.arcTo(x + 30, y+30, x + 24, y + 30, 6);
+		ctx.lineTo(x + 6, y+30);
+		ctx.arcTo(x, y+30, x, y + 24, 6);
+		ctx.lineTo(x, y+6);
+		ctx.arcTo(x, y, x+6, y, 6);
+		ctx.stroke();	
+		ctx.fill();
+		ctx.closePath();
+
+		
+		
+		
+		/*ctx.fillStyle = "#FFF";
+		ctx.rect(x+4,y+4,22,22);*/
+		//ctx.fill();
+
+		drawText(x+10,y+6,bonusList[this.type].letter,0.75, "#000")
+
+		
+		return true;
+	}
+}
+//Chope un bonus : [2,0.03,0.42,0.31,0.59,0.24,,0.26,,0.42,0.2,0.24,0.25,0.32,-0.48,0.06,-0.02,0.02,0.81,0.52,0.03,0.04,-0.58,0.35]
+
+			drawStar = function(x, y, size, color) {
+				ctx = document.getElementById("bg").getContext("2d");
+				var g = ctx.createRadialGradient(x,y,0,x,y,size);
+				g.addColorStop(0, "rgba("+color[0]+","+color[1]+","+color[2]+",0.7)");
+				g.addColorStop(0.10, "rgba("+color[0]+","+color[1]+","+color[2]+",0.7)");
+				g.addColorStop(0.11, "rgba("+color[0]+","+color[1]+","+color[2]+",0.3)");
+				g.addColorStop(1, "rgba(127,127,127,0)");
+				ctx.fillStyle = g;
+				ctx.fillRect(x-size,y-size,size*2,size*2);
+			}
+			drawStar2 = function(x, y, i) {
+				ctx.drawImage(grd[i],x,y);
+				//ctx.putImageData(grd[i],x,y);
+			}
+			GAME = {
+				speed:0.5,
+				sprites:[],
+				monsters:[],
+				weapons:[],
+				bonus:[],
+				explodeAll:null,
+				level:1,
+				showLevel:120,
+				monsterCount:0,
+				player:{
+					x:180, 
+					y:440,
+					armor:null,
+					touch:0,
+					life:300,
+					weapon:"laser",
+					weaponTime:0,
+					died:false
+				},
+				addExplosion : function(x, y, color, factorSize, gravity) {
+					this.sprites.push(new EXPLOSION(x, y, color, factorSize, gravity));
+				},
+				/**
+				* Add a bonus in game
+				* @param {float} x
+				* @param {float} y
+				* @param {int} type
+				*/
+				addBonus:function(x, y, type) {
+					this.bonus.push(new BONUS(x,y, type));
+				},
+				/**
+				* Add a monster in game
+				* @param {float} x
+				* @param {float} y
+				* @param {int} type
+				*/
+				addMonster : function(x, y, type, pathID) {
+					//this.monsters.push(new MONSTER1(x, y, type));
+					if (this.monsterCount>=50 || this.showLevel) {
+						return false;
+					}
+					
+					this.monsterCount++;
+					
+					this.monsters.push(new MONSTER(x, y, type, pathID));
+				},
+				/**
+				* Add laser from the gun of the player (if he have a gun)
+				*/
+				addLaser : function(x, y, type, angle) {
+					this.weapons.push(new window['WEAPON_'+type](x, y, angle, type));
+				}
+			}
+			frame = 0;
+			playeFireWait = 0;
+			fps = 0;
+			gameLoop = function() {
+				if (!auto) {
+					return;
+				}
+				window.requestAnimationFrame(gameLoop);
+				
+				if (GAME.player.armor==0) {
+					sound([0,0.09,0.12,0.3171,0.61,0.32,,-0.12,,0.23,0.03,,,,,,,,1,,,,,0.50]);
+					GAME.player.armor = null;
+				}
+				
+				GAME.player.weaponTime-=0.5;
+				if (GAME.player.weaponTime<=0) {
+					GAME.player.weapon = "laser";
+					GAME.player.weaponTime = 0;
+				}
+				
+				if (frame++%80==0) {
+					var p=Math.random();
+					if (p>0.66) {
+						p = 7;
+					} else if (p>0.33) {
+						p = 1;
+					} else {
+						p = 2;
+					}
+					GAME.addMonster(1920,150+Math.random()*850,Math.floor(Math.random()*(monsters.length-2))+1,p);
+					
+					
+				}
+				if (GAME.monsterCount==50 && GAME.monsters.length==0) {
+					GAME.monsterCount = 49;
+					GAME.addMonster(1920,150+Math.random()*850,16,1);
+					GAME.monsterCount = 51;
+				}
+				
+				if (GAME.monsterCount==51 && GAME.monsters.length==0) {
+					GAME.level++;
+					GAME.showLevel = 120;
+					GAME.monsterCount = 0;
+					GAME.speed*=1.1;
+					
+				}
+				if (frame%800==0) {
+					if (Math.random()>0.5) {
+						if (Math.random()>0.5) {
+							y = 600;
+							p = 3;
+						} else {
+							y = 200;
+							p = 4;
+						}
+						for (i=0; i<10; i++) {
+							GAME.addMonster(1920+(i*100),y,1,p);
+						}
+					} else {
+						for (i=0; i<10; i++) {
+							GAME.addMonster(1920+(i*200),200,2,5);
+							GAME.addMonster(2020+(i*200),600,2,6);
+						}
+					}
+				}
+				if (frame%400==0) {
+
+				}
+				if (frame%500==0) {
+					GAME.addBonus(1900,Math.random()*800,Math.floor(Math.random()*(bonusList.length-1))+1);
+				}
+				
+				ctx.clearRect(0,0,1920,1080)
+				
+				for (var i=0; i<stars.length*quality; i++) {
+					ctx.drawImage(grd[i],stars[i].x,stars[i].y);
+
+					stars[i].x-=stars[i].size*0.01*(velocity.x+15);
+					if (stars[i].x<0) {
+						stars[i].x = 2000;
+					}
+				}
+				
+				ctx.lineWidth = 1;
+				
+				ctx.fillStyle = "rgba(255,255,255,0.5)";
+				ctx.fillRect(0,980,1920,100); 
+				
+				ctx.fillStyle = "rgba(255,255,255,0.8)";
+				ctx.rect(820,980+25,280,50); 
+				ctx.stroke();
+				
+				
+				
+				
+				drawText(50,1020,"LIFE",1);
+				drawText(1130,1020,"WEAPON",1);
+				
+				
+				ctx.fillStyle = "rgba(255,255,255,0.8)";
+				ctx.strokeStyle = "#000";
+				ctx.rect(150,1016,600,30); 
+				
+				ctx.fillStyle = "rgba(255 ,255,255,0.8)";
+				ctx.strokeStyle = "#000";
+				ctx.rect(1260,1016,600,30); 
+				
+				ctx.fill();
+				
+				ctx.lineWidth = 0;
+				ctx.fillStyle = "rgba(55,55,255,0.8)";
+				ctx.fillRect(152,1018,Math.max(GAME.player.life,0),26); 
+				
+				ctx.lineWidth = 0;
+				ctx.fillStyle = "#E5A96E";
+				ctx.fillRect(152+Math.max(GAME.player.life,0),1018,GAME.player.armor,26); 
+				
+				
+				
+				
+				
+				
+				ctx.lineWidth = 0;
+				ctx.fillStyle = "rgba(255,55,55,0.8)";
+				ctx.fillRect(1262,1018,GAME.player.weaponTime,26); 
+				
+				
+				
+				ctx.stroke();
+				drawText(862,1014,("0000000"+score).substring(score.toString().length),1.5);
+				
+				
+				velocity.x -= velocity.x * 10.0 * delta;
+				velocity.z -= velocity.z * 10.0 * delta;
+				velocity.y -= velocity.y * 10.0 * delta;
+				
+				if ( moveForward ) velocity.y += 100.0 * delta;
+				if ( moveBackward ) velocity.y -= 100.0 * delta;
+				if ( moveLeft ) velocity.x -= 100 * delta;
+				if ( moveRight ) velocity.x += 100 * delta;
+
+				GAME.player.y+=velocity.y;
+				GAME.player.x+=velocity.x;
+				if (GAME.player.life) {
+					GAME.player.x=Math.max(GAME.player.x,0);
+				}
+				
+				playeFireWait--;
+				if (spaceKey && playeFireWait<1) {
+					if (GAME.player.weapon=="laser") {
+						GAME.addLaser(GAME.player.x+30, GAME.player.y+(60-(Math.abs(velocity.y)*2))/2, "LASERPLAYER");
+					} else {
+						GAME.addLaser(GAME.player.x+30, GAME.player.y+(60-(Math.abs(velocity.y)*2))/2, "FIREBALLPLAYER");
+						GAME.addLaser(GAME.player.x+30, GAME.player.y+(60-(Math.abs(velocity.y)*2))/2, "FIREBALLPLAYER",Math.PI/2-0.25);
+						GAME.addLaser(GAME.player.x+30, GAME.player.y+(60-(Math.abs(velocity.y)*2))/2, "FIREBALLPLAYER",Math.PI/2+0.25);
+					}
+					playeFireWait = 10;
+					sound([0,,0.1541,0.0294,0.3834,0.6142,0.2,-0.2723,,,,,,0.1888,0.0421,,,,1,,,,,0.5]);
+					
+				}
+		
+				//update sprites
+				for (i=0; i<GAME.sprites.length; i++) {
+					if (!GAME.sprites[i].update()) {
+						GAME.sprites.splice(i--,1);
+					}
+				}
+				//update monsters
+				for (i=0; i<GAME.monsters.length; i++) {
+					if (!GAME.monsters[i].update()) {
+						GAME.monsters.splice(i--,1);
+					}
+				}
+				//update weapons
+				for (i=0; i<GAME.weapons.length; i++) {
+					if (!GAME.weapons[i].update()) {
+						GAME.weapons.splice(i--,1);
+					}
+				}
+				//update bonus
+				for (i=0; i<GAME.bonus.length; i++) {
+					if (!GAME.bonus[i].update()) {
+						GAME.bonus.splice(i--,1);
+					}
+				}
+				
+				if (GAME.player.armor) {
+					x = GAME.player.x+35;
+					y = GAME.player.y+30;
+					size = 100+(10*Math.sin(frame/10));
+					var g = ctx.createRadialGradient(x,y,0,x,y,size);
+					GAME.player.touch--;
+					if (GAME.player.touch>=0) {
+						g.addColorStop(0, "rgba(255,255,255,0)");
+						g.addColorStop(0.80, "rgba(63,112,255,0.4)");
+						g.addColorStop(0.81, "rgba(63, 112, 255,0.4)");
+						g.addColorStop(0.91, "rgba(191,243,255,0.7)");
+						g.addColorStop(0.95, "rgba(127,187,255,1)");
+						g.addColorStop(1, "rgba(127,187,255,0)");
+					} else {
+						g.addColorStop(0, "rgba(0,0,0,0)");
+						g.addColorStop(0.80, "rgba(0,0,0,0)");
+						g.addColorStop(0.81, "rgba(255, 0, 63,0)");
+						g.addColorStop(0.91, "rgba(255,243,191,0.7)");
+						g.addColorStop(0.95, "rgba(255,187,127,1)");
+						g.addColorStop(1, "rgba(255,187,127,0)");
+					}
+					ctx.fillStyle = g;
+					ctx.fillRect(x-size,y-size,size*2,size*2);
+				}
+				if (GAME.player.explodeAll) {
+					var b = GAME.player.explodeAll;
+					x = b.x;
+					y = b.y;
+					size = b.counter;
+					var g = ctx.createRadialGradient(x,y,0,x,y,size);
+					b.counter*=1.1;
+					g.addColorStop(0, "rgba(0,0,0,0)");
+					g.addColorStop(0.80, "rgba(0,0,0,0)");
+					g.addColorStop(0.81, "rgba(255, 0, 23,0)");
+					g.addColorStop(0.91, "rgba(255,143,91,0.7)");
+					g.addColorStop(0.95, "rgba(255,87,27,1)");
+					g.addColorStop(1, "rgba(255,87,27,0)");
+					
+					ctx.fillStyle = g;
+					ctx.fillRect(x-size,y-size,size*2,size*2);
+					
+					//update monsters
+					for (i=0; i<GAME.monsters.length; i++) {
+						var m = GAME.monsters[i];
+						if (m.type!=16 && Math.hypot(m.x-(GAME.player.x+50), m.y-(GAME.player.y+30))<b.counter) {
+							if (!m.hit(1)) {
+								i--;
+							}
+						}
+					}
+					if (b.counter>2000) {
+						GAME.player.explodeAll = null;
+					}
+					
+				}
+				if (GAME.player.life<=0) {
+					if (!GAME.player.died) {
+						GAME.addExplosion(GAME.player.x-10, GAME.player.y-10, [127+Math.floor(Math.random()*127),127+Math.floor(Math.random()*127),127+Math.floor(Math.random()*127)], 4);
+						GAME.addExplosion(GAME.player.x, GAME.player.y, [127+Math.floor(Math.random()*127),127+Math.floor(Math.random()*127),127+Math.floor(Math.random()*127)], 2);
+						GAME.addExplosion(GAME.player.x+10, GAME.player.y+10, [127+Math.floor(Math.random()*127),127+Math.floor(Math.random()*127),127+Math.floor(Math.random()*127)], 4);
+						GAME.player.died = true;
+						sound([3,,0.3076,0.6408,0.97,0.0108,,0.2293,,,,,,,,,,,1,,,,,0.51]);
+					}
+					drawText(600,400,"GAME OVER", 4, "#FFF");
+					GAME.player.x = -1000;
+					GAME.monsterCount=0;
+				}
+				if (GAME.showLevel) {
+					drawText(700,400,"LEVEL "+GAME.level, 4, "#FFF");
+					if (GAME.level>1) {
+						drawText(860,560,"SPEED += 1", 1, "#FFF");
+					}
+					GAME.showLevel--;
+				}
+				
+				ctx.drawImage(player, GAME.player.x,GAME.player.y, 100, 60-(Math.abs(velocity.y)*2));
+			}
+
+
+			auto = true;
+			stars = [];
+			grd = [];
+			var canvas;
+			var ctx;
+			
+velocity = {x:0, y:0, z:0};
+delta = 0.01;
+			moveForward = moveBackward = moveLeft = moveRight = spaceKey = false;
+			player = false;	
+score = 0;
+
+font = [];
+font[0] = "111101101101111";
+font[1] = "010110010010111";
+font[2] = "111001111100111";
+font[3] = "111001111001111";
+font[4] = "101101111001001";
+font[5] = "111100111001111";
+font[6] = "111100111101111";
+font[7] = "111001010010010";
+font[8] = "111101111101111";
+font[9] = "111101111001111";
+font["A"] = "111101111101101";
+font["B"] = "110101110101110";
+font["C"] = "111100100100111";
+font["D"] = "110101101101110";
+font["E"] = "111100111100111";
+font["F"] = "111100111100100";
+font["G"] = "111100101101111";
+font["H"] = "101101111101101";
+font["I"] = "111010010010111";
+font["J"] = "011001001101010";
+font["K"] = "101101110101101";
+font["L"] = "100100100100111";
+font["M"] = "101111111101101";
+font["N"] = "101111111111101";
+font["O"] = "010101101101010";
+font["P"] = "110101110100100";
+font["R"] = "110101111110101";
+font["S"] = "111100111001111";
+font["T"] = "111010010010010";
+font["U"] = "101101101101111";
+font["V"] = "101101101101010";
+font["W"] = "101101111111010";
+font["X"] = "101101010101101";
+font["Y"] = "101101010010010";
+font["-"] = "000000111000000";
+font[":"] = "000010000010000";
+font["."] = "000000000000010";
+font[","] = "000000000010100";
+font["?"] = "010101001010010";
+font["+"] = "000010111010000";
+font["="] = "000111000111000";
+
+
+                    
+
+sounds = [];
+/**
+ * Draw a text 
+ * @param {type} posX
+ * @param {type} posY
+ * @param {type} number
+ * @param {type} context
+ * @returns {undefined}
+ */
+drawText = function(posX, posY, text, zoom, color) {
+	ctx.fillStyle = color ? color : 'red';
+	text = text.toString();
+	for (var i=0; i<text.length; i++) {
+		var index = 0;
+		for (y=0; y<5; y++) {
+			for (x=0; x<3; x++) {
+				if (text[i]==" ") { continue; }
+				if (font[text[i]][index++]=="1") {
+					ctx.fillRect(posX+x*5*zoom,posY+y*5*zoom,4*zoom,4*zoom); 
+				}
+			}
+		}
+		posX += 20*zoom;
+	}
+}
+
+initAudio = function() {
+	var musicplayer = new CPlayer();
+
+	musicplayer.init(song);
+
+	while (musicplayer.generate() < 1) { }
+
+	var wave = musicplayer.createWave();
+	context.decodeAudioData(wave.buffer, function(buffer){
+		musicBuffer = buffer;
+
+		music.buffer = musicBuffer; // Attatch our Audio Data as it's Buffer
+		music.connect(gainNode);  // Link the Sound to the Output
+		music.start(0); // Play the Sound Immediately
+		music.loopEnd = 56;
+		music.loopStart = 16;
+		music.loop = true;
+
+
+		for (var i=1; i<monsters.length; i++) {
+			if (monsters[i].sprite) {
+				drawSpriteToImg(i);
+			}
+		}
+
+		player = new Image(); 
+		player.src = "life.png";
+
+		for (var i=0; i<500; i++) {
+			//ctx.fillStyle = "#00F";
+			//ctx.fillRect(0,0,20,20); 	
+			ctx.clearRect(0,0,1920,1080); 	
+			var x = Math.random()*1920;
+			var y= Math.random()*1080;
+			var size = 5+Math.random()*10;
+			a = 127+Math.floor(Math.random()*60);
+			var color = [a*2,a,127+Math.floor(Math.random()*127)];
+			stars.push({x:x, y:y, size:size, color:color});
+
+			var canvas2=document.createElement("canvas");
+			canvas2.width=size*2;
+			canvas2.height=size*2
+			var ctx2=canvas2.getContext("2d");
+			var g = ctx2.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);
+			g.addColorStop(0, "rgba("+color[0]+","+color[1]+","+color[2]+",0.7)");
+			g.addColorStop(0.10, "rgba("+color[0]+","+color[1]+","+color[2]+",0.7)");
+			g.addColorStop(0.11, "rgba("+color[0]+","+color[1]+","+color[2]+",0.3)");
+			g.addColorStop(1, "rgba(127,127,127,0)");
+			ctx2.fillStyle = g;
+			ctx2.fillRect(0,0,size*2,size*2);
+
+			grd[i] = new Image();
+			grd[i].src = canvas2.toDataURL("image/png");
+		}
+		gameLoop();
+	});
+	
+}
+init = function() {
+	canvas = document.getElementById("bg");
+	ctx = document.getElementById("bg").getContext("2d");
+
+	drawText(640,400,"LOADING",4, "#FFF")
+
+
+	setTimeout(initAudio, 1);
+
+	imgs[16] = new Image(); 
+	imgs[16].src = "boss.png";
+
+}
+var keys = [];
+document.onkeydown = function(e) {
+	keys[e.keyCode] = true;
+	switch(e.keyCode) {
+		case 38: // up
+			moveBackward = true;
+			break;
+
+		case 37: // left
+			moveLeft = true; 
+			break;
+
+		case 40: // down
+			moveForward = true;
+			break;
+		case 39: // right
+			moveRight = true;
+			break;
+		case 32: //space
+			spaceKey = true;
+			break;
+	}
+	e.preventDefault();
+}
+document.onkeyup = function(e) {
+	keys[e.keyCode] = false;
+	switch(e.keyCode) {
+		case 83:
+			snd=!snd;
+			snd ? playMusic() : stopMusic();
+			break;
+		case 38: // up
+			moveBackward = false;
+			break;
+		case 37: // left
+			moveLeft = false;
+			break;
+		case 40: // down
+			moveForward = false;
+			break;
+		case 39: // right
+			moveRight = false;
+			break;
+		case 32: //space
+			spaceKey = false;
+			break;
+	}
+}
+			
+// This music has been exported by SoundBox. You can use it with
+// http://sb.bitsnbites.eu/player-small.js in your own product.
+
+// See http://sb.bitsnbites.eu/demo.html for an example of how to
+// use it in a demo.
+
+// Song data
+var song = {
+      songData: [
+        { // Instrument 0
+          i: [
+          1, // OSC1_WAVEFORM
+          130, // OSC1_VOL
+          128, // OSC1_SEMI
+          0, // OSC1_XENV
+          1, // OSC2_WAVEFORM
+          25, // OSC2_VOL
+          128, // OSC2_SEMI
+          9, // OSC2_DETUNE
+          0, // OSC2_XENV
+          0, // NOISE_VOL
+          7, // ENV_ATTACK
+          5, // ENV_SUSTAIN
+          52, // ENV_RELEASE
+          0, // ARP_CHORD
+          0, // ARP_SPEED
+          0, // LFO_WAVEFORM
+          0, // LFO_AMT
+          0, // LFO_FREQ
+          0, // LFO_FX_FREQ
+          2, // FX_FILTER
+          255, // FX_FREQ
+          0, // FX_RESONANCE
+          0, // FX_DIST
+          32, // FX_DRIVE
+          47, // FX_PAN_AMT
+          3, // FX_PAN_FREQ
+          17, // FX_DELAY_AMT
+          2 // FX_DELAY_TIME
+          ],
+          // Patterns
+          p: [1,2,1,2,1,2,1,2,1,2,1,2,1,2],
+          // Columns
+          c: [
+            {n: [125,125,,125,125,,125,,125,125,,125,125,125,,,125,125,,125,125,,125,,125,125,,125,125,125,,,,,132,,,132,,132,,,132,,,,132,130,,,133,,,133,,133,,,133,,,,133,130,,,137,,,137,,137,,,137,,,,137,134,,,137,,,137,,137,,,137,,,,137,134],
+             f: []},
+            {n: [123,123,,123,123,,123,,123,123,,123,123,123,,,120,120,,120,120,,120,,120,120,,120,120,120,,,,,130,,,130,,130,,,130,,,,130,125,,,127,,,127,,127,,,127,,,,127,127,,,135,,,135,,135,,,135,,,,135,130,,,132,,,132,,132,,,132,,,,132,132],
+             f: []}
+          ]
+        },
+        { // Instrument 1
+          i: [
+          1, // OSC1_WAVEFORM
+          28, // OSC1_VOL
+          128, // OSC1_SEMI
+          0, // OSC1_XENV
+          1, // OSC2_WAVEFORM
+          28, // OSC2_VOL
+          140, // OSC2_SEMI
+          18, // OSC2_DETUNE
+          0, // OSC2_XENV
+          0, // NOISE_VOL
+          0, // ENV_ATTACK
+          60, // ENV_SUSTAIN
+          178, // ENV_RELEASE
+          0, // ARP_CHORD
+          0, // ARP_SPEED
+          0, // LFO_WAVEFORM
+          0, // LFO_AMT
+          0, // LFO_FREQ
+          0, // LFO_FX_FREQ
+          2, // FX_FILTER
+          13, // FX_FREQ
+          0, // FX_RESONANCE
+          0, // FX_DIST
+          32, // FX_DRIVE
+          0, // FX_PAN_AMT
+          0, // FX_PAN_FREQ
+          0, // FX_DELAY_AMT
+          0 // FX_DELAY_TIME
+          ],
+          // Patterns
+          p: [,,1,2,1,2,1,2,1,2,1,2,1,2],
+          // Columns
+          c: [
+            {n: [113,,,,,,,,,,,,,,,,113,,,,,,,,,,,,,,,,120,,,,,,,,,,,,,,,,121,,,,,,,,,,,,,,,,125,,,,,,,,,,,,,,,,125],
+             f: []},
+            {n: [111,,,,,,,,,,,,,,,,108,,,,,,,,,,,,,,,,118,,,,,,,,,,,,,,,,115,,,,,,,,,,,,,,,,123,,,,,,,,,,,,,,,,120],
+             f: []}
+          ]
+        },
+        { // Instrument 2
+          i: [
+          1, // OSC1_WAVEFORM
+          124, // OSC1_VOL
+          128, // OSC1_SEMI
+          0, // OSC1_XENV
+          1, // OSC2_WAVEFORM
+          125, // OSC2_VOL
+          140, // OSC2_SEMI
+          18, // OSC2_DETUNE
+          0, // OSC2_XENV
+          0, // NOISE_VOL
+          0, // ENV_ATTACK
+          29, // ENV_SUSTAIN
+          52, // ENV_RELEASE
+          0, // ARP_CHORD
+          0, // ARP_SPEED
+          0, // LFO_WAVEFORM
+          0, // LFO_AMT
+          0, // LFO_FREQ
+          0, // LFO_FX_FREQ
+          2, // FX_FILTER
+          13, // FX_FREQ
+          0, // FX_RESONANCE
+          0, // FX_DIST
+          32, // FX_DRIVE
+          0, // FX_PAN_AMT
+          0, // FX_PAN_FREQ
+          0, // FX_DELAY_AMT
+          0 // FX_DELAY_TIME
+          ],
+          // Patterns
+          p: [,,,,1,2,1,2,1,2,1,2,1,2],
+          // Columns
+          c: [
+            {n: [113,,,,113,,,,113,,,,113,,,,113,,,,113,,,,113,,,,113,,,,,120,,120,,120,,120,,120,,120,,120,,120,,121,,121,,121,,121,,121,,121,,121,,121,,,125,,,,125,,,,125,,,,125,,,,125,,,,125,,,,125,,,,125],
+             f: []},
+            {n: [111,,,,111,,,,111,,,,111,,,,108,,,,108,,,,108,,,,108,,,,,118,,118,,118,,118,,118,,118,,118,,118,,115,,115,,115,,115,,115,,115,,115,,115,,,123,,,,123,,,,123,,,,123,,,,120,,,,120,,,,120,,,,120],
+             f: []}
+          ]
+        },
+        { // Instrument 3
+          i: [
+          0, // OSC1_WAVEFORM
+          160, // OSC1_VOL
+          128, // OSC1_SEMI
+          1, // OSC1_XENV
+          0, // OSC2_WAVEFORM
+          160, // OSC2_VOL
+          128, // OSC2_SEMI
+          0, // OSC2_DETUNE
+          1, // OSC2_XENV
+          210, // NOISE_VOL
+          4, // ENV_ATTACK
+          7, // ENV_SUSTAIN
+          41, // ENV_RELEASE
+          0, // ARP_CHORD
+          0, // ARP_SPEED
+          0, // LFO_WAVEFORM
+          60, // LFO_AMT
+          4, // LFO_FREQ
+          1, // LFO_FX_FREQ
+          2, // FX_FILTER
+          33, // FX_FREQ
+          0, // FX_RESONANCE
+          0, // FX_DIST
+          32, // FX_DRIVE
+          61, // FX_PAN_AMT
+          5, // FX_PAN_FREQ
+          0, // FX_DELAY_AMT
+          6 // FX_DELAY_TIME
+          ],
+          // Patterns
+          p: [,,,,2,2,2,2,2,2,2,2,2,2],
+          // Columns
+          c: [
+            {n: [120,,,,,,120,,120,,,,,,,,120,,,,,,120,,120,,,,,,,,120,,,,,,120,,120,,,,,,,,120,,,,,,120,,120],
+             f: []},
+            {n: [120,,,,120,,,,120,,,,120,,,,120,,,,120,,,,120,,,,120,,120,,120,,,,120,,,,120,,,,120,,,,120,,,,120,,,,120,,,,120,,120],
+             f: []}
+          ]
+        },
+        { // Instrument 4
+          i: [
+          0, // OSC1_WAVEFORM
+          0, // OSC1_VOL
+          140, // OSC1_SEMI
+          0, // OSC1_XENV
+          0, // OSC2_WAVEFORM
+          0, // OSC2_VOL
+          140, // OSC2_SEMI
+          0, // OSC2_DETUNE
+          0, // OSC2_XENV
+          60, // NOISE_VOL
+          4, // ENV_ATTACK
+          10, // ENV_SUSTAIN
+          34, // ENV_RELEASE
+          0, // ARP_CHORD
+          0, // ARP_SPEED
+          0, // LFO_WAVEFORM
+          187, // LFO_AMT
+          5, // LFO_FREQ
+          0, // LFO_FX_FREQ
+          1, // FX_FILTER
+          239, // FX_FREQ
+          135, // FX_RESONANCE
+          0, // FX_DIST
+          32, // FX_DRIVE
+          108, // FX_PAN_AMT
+          5, // FX_PAN_FREQ
+          16, // FX_DELAY_AMT
+          4 // FX_DELAY_TIME
+          ],
+          // Patterns
+          p: [,,1,1,2,2,2,2,2,2,2,2,2,2],
+          // Columns
+          c: [
+            {n: [,,118,,,,118,,,,118,,,,118,,,,118,,,,118,,,,118,,,,118],
+             f: []},
+            {n: [118,,118,,118,,118,,118,,118,,118,,118,,118,,118,,118,,118,,118,,118,,118,,118,,,118,,118,,118,,118,,118,,118,,118,,118,,118,,118,,118,,118,,118,,118,,118,,118],
+             f: []}
+          ]
+        },
+        { // Instrument 5
+          i: [
+          0, // OSC1_WAVEFORM
+          160, // OSC1_VOL
+          128, // OSC1_SEMI
+          1, // OSC1_XENV
+          0, // OSC2_WAVEFORM
+          160, // OSC2_VOL
+          128, // OSC2_SEMI
+          0, // OSC2_DETUNE
+          1, // OSC2_XENV
+          210, // NOISE_VOL
+          4, // ENV_ATTACK
+          7, // ENV_SUSTAIN
+          41, // ENV_RELEASE
+          0, // ARP_CHORD
+          0, // ARP_SPEED
+          0, // LFO_WAVEFORM
+          60, // LFO_AMT
+          4, // LFO_FREQ
+          1, // LFO_FX_FREQ
+          2, // FX_FILTER
+          255, // FX_FREQ
+          0, // FX_RESONANCE
+          0, // FX_DIST
+          32, // FX_DRIVE
+          61, // FX_PAN_AMT
+          0, // FX_PAN_FREQ
+          0, // FX_DELAY_AMT
+          0 // FX_DELAY_TIME
+          ],
+          // Patterns
+          p: [,,,2,1,1,1,1,1,1,1,1,1,1],
+          // Columns
+          c: [
+            {n: [,,120,,,,120,,,,120,,,,120,120,,,120,,,,120,,,,120,,,,120,120],
+             f: []},
+            {n: [,,,,,,,,,,,,,,,,120,,,,120,,,,120,,120,,120,,120,120],
+             f: []}
+          ]
+        },
+        { // Instrument 6
+          i: [
+          1, // OSC1_WAVEFORM
+          192, // OSC1_VOL
+          128, // OSC1_SEMI
+          0, // OSC1_XENV
+          1, // OSC2_WAVEFORM
+          191, // OSC2_VOL
+          116, // OSC2_SEMI
+          9, // OSC2_DETUNE
+          0, // OSC2_XENV
+          0, // NOISE_VOL
+          6, // ENV_ATTACK
+          22, // ENV_SUSTAIN
+          40, // ENV_RELEASE
+          0, // ARP_CHORD
+          0, // ARP_SPEED
+          0, // LFO_WAVEFORM
+          69, // LFO_AMT
+          3, // LFO_FREQ
+          1, // LFO_FX_FREQ
+          1, // FX_FILTER
+          0, // FX_FREQ
+          167, // FX_RESONANCE
+          0, // FX_DIST
+          32, // FX_DRIVE
+          77, // FX_PAN_AMT
+          6, // FX_PAN_FREQ
+          25, // FX_DELAY_AMT
+          6 // FX_DELAY_TIME
+          ],
+          // Patterns
+          p: [,,,1,6,7,2,3,2,3,4,5,4,5],
+          // Columns
+          c: [
+            {n: [,,,,,,,,,,,,,,,,,,,,,,,,,,,,149,151,152,154],
+             f: [13,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,53]},
+            {n: [156,,,,,,,,,,,,149,151,152,154,157],
+             f: [13,,,,,,,,,,,,13,,,,13,,,,,,,,,,,,,,,,130,,,,,,,,,,,,44,,,,130]},
+            {n: [161,154,,156,159,,154,151,,151,152,,144,142,139,142,144,,,,147,,149,,151,,142,,149,151,152,154],
+             f: [13,,,,,,,,,,,,,,,,13,,,,13,,,,,,,,13,,,,44,,,,,,,,,,,,,,,,81,,,,61,,,,,,,,44]},
+            {n: [152,,149,,,149,,,149,,,,149,151,152,154,152,,149,,,149,,,149,,,,149,151,152,154],
+             f: []},
+            {n: [151,,147,,,147,,,147,,,,149,151,152,154,151,,149,,,147,,,149,,,,151,151,152,154],
+             f: []},
+            {n: [152,,156,,154,,151,,,,,152,156,,152,154,159,,161,,152,,152,,135,,137],
+             f: []},
+            {n: [135,,,,135,,,,135,,,,135,,,,156,,,,159,,,,168,,,,171,,,,,142,,142,,142,,142,,142,,142,,142,,142,,,,,,,,,,,,,,,,,,,147,,,,147,,,,147,,,,147],
+             f: [,,,,,,,,,,,,,,,,13,,,,,,,,,,,,,,,13,,,,,,,,,,,,,,,,,158,,,,,,,,,,,,,,,40]}
+          ]
+        },
+        { // Instrument 7
+          i: [
+          0, // OSC1_WAVEFORM
+          0, // OSC1_VOL
+          128, // OSC1_SEMI
+          0, // OSC1_XENV
+          0, // OSC2_WAVEFORM
+          0, // OSC2_VOL
+          128, // OSC2_SEMI
+          0, // OSC2_DETUNE
+          0, // OSC2_XENV
+          125, // NOISE_VOL
+          0, // ENV_ATTACK
+          52, // ENV_SUSTAIN
+          109, // ENV_RELEASE
+          0, // ARP_CHORD
+          0, // ARP_SPEED
+          0, // LFO_WAVEFORM
+          0, // LFO_AMT
+          0, // LFO_FREQ
+          0, // LFO_FX_FREQ
+          1, // FX_FILTER
+          193, // FX_FREQ
+          171, // FX_RESONANCE
+          0, // FX_DIST
+          29, // FX_DRIVE
+          39, // FX_PAN_AMT
+          3, // FX_PAN_FREQ
+          88, // FX_DELAY_AMT
+          3 // FX_DELAY_TIME
+          ],
+          // Patterns
+          p: [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+          // Columns
+          c: [
+            {n: [125,,,,,,,,,,,,,,,,125],
+             f: []}
+          ]
+        }
+      ],
+      rowLen: 5513,   // In sample lengths
+      patternLen: 32,  // Rows per pattern
+      endPattern: 15  // End pattern
+    };
+
+var CPlayer = function() {
+    //--------------------------------------------------------------------------
+    // Private methods
+    //--------------------------------------------------------------------------
+
+    // Oscillators
+    var osc_sin = function (value) {
+        return Math.sin(value * 6.283184);
+    };
+
+    var osc_saw = function (value) {
+        return 2 * (value % 1) - 1;
+    };
+
+    var osc_square = function (value) {
+        return (value % 1) < 0.5 ? 1 : -1;
+    };
+
+    var osc_tri = function (value) {
+        var v2 = (value % 1) * 4;
+        if(v2 < 2) return v2 - 1;
+        return 3 - v2;
+    };
+
+    var getnotefreq = function (n) {
+        // 174.61.. / 44100 = 0.003959503758 (F3)
+        return 0.003959503758 * Math.pow(2, (n - 128) / 12);
+    };
+
+    var createNote = function (instr, n, rowLen) {
+        var osc1 = mOscillators[instr.i[0]],
+            o1vol = instr.i[1],
+            o1xenv = instr.i[3],
+            osc2 = mOscillators[instr.i[4]],
+            o2vol = instr.i[5],
+            o2xenv = instr.i[8],
+            noiseVol = instr.i[9],
+            attack = instr.i[10] * instr.i[10] * 4,
+            sustain = instr.i[11] * instr.i[11] * 4,
+            release = instr.i[12] * instr.i[12] * 4,
+            releaseInv = 1 / release,
+            arp = instr.i[13],
+            arpInterval = rowLen * Math.pow(2, 2 - instr.i[14]);
+
+        var noteBuf = new Int32Array(attack + sustain + release);
+
+        // Re-trig oscillators
+        var c1 = 0, c2 = 0;
+
+        // Local variables.
+        var j, j2, e, t, rsample, o1t, o2t;
+
+        // Generate one note (attack + sustain + release)
+        for (j = 0, j2 = 0; j < attack + sustain + release; j++, j2++) {
+            if (j2 >= 0) {
+                // Switch arpeggio note.
+                arp = (arp >> 8) | ((arp & 255) << 4);
+                j2 -= arpInterval;
+
+                // Calculate note frequencies for the oscillators
+                o1t = getnotefreq(n + (arp & 15) + instr.i[2] - 128);
+                o2t = getnotefreq(n + (arp & 15) + instr.i[6] - 128) * (1 + 0.0008 * instr.i[7]);
+            }
+
+            // Envelope
+            e = 1;
+            if (j < attack) {
+                e = j / attack;
+            } else if (j >= attack + sustain) {
+                e -= (j - attack - sustain) * releaseInv;
+            }
+
+            // Oscillator 1
+            t = o1t;
+            if (o1xenv) {
+                t *= e * e;
+            }
+            c1 += t;
+            rsample = osc1(c1) * o1vol;
+
+            // Oscillator 2
+            t = o2t;
+            if (o2xenv) {
+                t *= e * e;
+            }
+            c2 += t;
+            rsample += osc2(c2) * o2vol;
+
+            // Noise oscillator
+            if (noiseVol) {
+                rsample += (2 * Math.random() - 1) * noiseVol;
+            }
+
+            // Add to (mono) channel buffer
+            noteBuf[j] = (80 * rsample * e) | 0;
+        }
+
+        return noteBuf;
+    };
+
+
+    //--------------------------------------------------------------------------
+    // Private members
+    //--------------------------------------------------------------------------
+
+    // Array of oscillator functions
+    var mOscillators = [
+        osc_sin,
+        osc_square,
+        osc_saw,
+        osc_tri
+    ];
+
+    // Private variables set up by init()
+    var mSong, mLastRow, mCurrentCol, mNumWords, mMixBuf;
+
+
+    //--------------------------------------------------------------------------
+    // Initialization
+    //--------------------------------------------------------------------------
+
+    this.init = function (song) {
+        // Define the song
+        mSong = song;
+
+        // Init iteration state variables
+        mLastRow = song.endPattern - 2;
+        mCurrentCol = 0;
+
+        // Prepare song info
+        mNumWords =  song.rowLen * song.patternLen * (mLastRow + 1) * 2;
+
+        // Create work buffer (initially cleared)
+        mMixBuf = new Int32Array(mNumWords);
+    };
+
+
+    //--------------------------------------------------------------------------
+    // Public methods
+    //--------------------------------------------------------------------------
+
+    // Generate audio data for a single track
+    this.generate = function () {
+        // Local variables
+        var i, j, b, p, row, col, n, cp,
+            k, t, lfor, e, x, rsample, rowStartSample, f, da;
+
+        // Put performance critical items in local variables
+        var chnBuf = new Int32Array(mNumWords),
+            instr = mSong.songData[mCurrentCol],
+            rowLen = mSong.rowLen,
+            patternLen = mSong.patternLen;
+
+        // Clear effect state
+        var low = 0, band = 0, high;
+        var lsample, filterActive = false;
+
+        // Clear note cache.
+        var noteCache = [];
+
+        // Patterns
+        for (p = 0; p <= mLastRow; ++p) {
+            cp = instr.p[p];
+
+            // Pattern rows
+            for (row = 0; row < patternLen; ++row) {
+                // Execute effect command.
+                var cmdNo = cp ? instr.c[cp - 1].f[row] : 0;
+                if (cmdNo) {
+                    instr.i[cmdNo - 1] = instr.c[cp - 1].f[row + patternLen] || 0;
+
+                    // Clear the note cache since the instrument has changed.
+                    if (cmdNo < 15) {
+                        noteCache = [];
+                    }
+                }
+
+                // Put performance critical instrument properties in local variables
+                var oscLFO = mOscillators[instr.i[15]],
+                    lfoAmt = instr.i[16] / 512,
+                    lfoFreq = Math.pow(2, instr.i[17] - 9) / rowLen,
+                    fxLFO = instr.i[18],
+                    fxFilter = instr.i[19],
+                    fxFreq = instr.i[20] * 43.23529 * 3.141592 / 44100,
+                    q = 1 - instr.i[21] / 255,
+                    dist = instr.i[22] * 1e-5,
+                    drive = instr.i[23] / 32,
+                    panAmt = instr.i[24] / 512,
+                    panFreq = 6.283184 * Math.pow(2, instr.i[25] - 9) / rowLen,
+                    dlyAmt = instr.i[26] / 255,
+                    dly = instr.i[27] * rowLen;
+
+                // Calculate start sample number for this row in the pattern
+                rowStartSample = (p * patternLen + row) * rowLen;
+
+                // Generate notes for this pattern row
+                for (col = 0; col < 4; ++col) {
+                    n = cp ? instr.c[cp - 1].n[row + col * patternLen] : 0;
+                    if (n) {
+                        if (!noteCache[n]) {
+                            noteCache[n] = createNote(instr, n, rowLen);
+                        }
+
+                        // Copy note from the note cache
+                        var noteBuf = noteCache[n];
+                        for (j = 0, i = rowStartSample * 2; j < noteBuf.length; j++, i += 2) {
+                            chnBuf[i] += noteBuf[j];
+                        }
+                    }
+                }
+
+                // Perform effects for this pattern row
+                for (j = 0; j < rowLen; j++) {
+                    // Dry mono-sample
+                    k = (rowStartSample + j) * 2;
+                    rsample = chnBuf[k];
+
+                    // We only do effects if we have some sound input
+                    if (rsample || filterActive) {
+                        // State variable filter
+                        f = fxFreq;
+                        if (fxLFO) {
+                            f *= oscLFO(lfoFreq * k) * lfoAmt + 0.5;
+                        }
+                        f = 1.5 * Math.sin(f);
+                        low += f * band;
+                        high = q * (rsample - band) - low;
+                        band += f * high;
+                        rsample = fxFilter == 3 ? band : fxFilter == 1 ? high : low;
+
+                        // Distortion
+                        if (dist) {
+                            rsample *= dist;
+                            rsample = rsample < 1 ? rsample > -1 ? osc_sin(rsample*.25) : -1 : 1;
+                            rsample /= dist;
+                        }
+
+                        // Drive
+                        rsample *= drive;
+
+                        // Is the filter active (i.e. still audiable)?
+                        filterActive = rsample * rsample > 1e-5;
+
+                        // Panning
+                        t = Math.sin(panFreq * k) * panAmt + 0.5;
+                        lsample = rsample * (1 - t);
+                        rsample *= t;
+                    } else {
+                        lsample = 0;
+                    }
+
+                    // Delay is always done, since it does not need sound input
+                    if (k >= dly) {
+                        // Left channel = left + right[-p] * t
+                        lsample += chnBuf[k-dly+1] * dlyAmt;
+
+                        // Right channel = right + left[-p] * t
+                        rsample += chnBuf[k-dly] * dlyAmt;
+                    }
+
+                    // Store in stereo channel buffer (needed for the delay effect)
+                    chnBuf[k] = lsample | 0;
+                    chnBuf[k+1] = rsample | 0;
+
+                    // ...and add to stereo mix buffer
+                    mMixBuf[k] += lsample | 0;
+                    mMixBuf[k+1] += rsample | 0;
+                }
+            }
+        }
+
+        // Next iteration. Return progress (1.0 == done!).
+        mCurrentCol++;
+        return mCurrentCol / 8;
+    };
+
+    // Create a WAVE formatted Uint8Array from the generated audio data
+    this.createWave = function() {
+        // Create WAVE header
+        var l1 = mNumWords * 2 - 8;
+        var l2 = l1 - 36;
+        var headerLen = 44;
+        var wave = new Uint8Array(headerLen + mNumWords * 2);
+        wave.set(
+            [82,73,70,70,
+                l1 & 255,(l1 >> 8) & 255,(l1 >> 16) & 255,(l1 >> 24) & 255,
+                87,65,86,69,102,109,116,32,16,0,0,0,1,0,2,0,
+                68,172,0,0,16,177,2,0,4,0,16,0,100,97,116,97,
+                l2 & 255,(l2 >> 8) & 255,(l2 >> 16) & 255,(l2 >> 24) & 255]
+        );
+
+        // Append actual wave data
+        for (var i = 0, idx = headerLen; i < mNumWords; ++i) {
+            // Note: We clamp here
+            var y = mMixBuf[i];
+            y = y < -32767 ? -32767 : (y > 32767 ? 32767 : y);
+            wave[idx++] = y & 255;
+            wave[idx++] = (y >> 8) & 255;
+        }
+
+        // Return the WAVE formatted typed array
+        return wave;
+    };
+
+    // Get n samples of wave data at time t [s]. Wave data in range [-2,2].
+    this.getData = function(t, n) {
+        var i = 2 * Math.floor(t * 44100);
+        var d = new Array(n);
+        for (var j = 0; j < 2*n; j += 1) {
+            var k = i + j;
+            d[j] = t > 0 && k < mMixBuf.length ? mMixBuf[k] / 32768 : 0;
+        }
+        return d;
+    };
+};
+
+
+musicBuffer = false;
+var context = new AudioContext();
+var gainNode = context.createGain();
+var music = context.createBufferSource();
+gainNode.connect(context.destination);
+
+var quality = 1;
+var snd = true;
+var player;
+
+function playMusic() {
+	gainNode.gain.value = 1;
+	snd = true;
+}
+
+function stopMusic() {
+	gainNode.gain.value = 0
+	snd = false;
+}
+
+sound = function(s) {
+	if (snd) { playSound(s); }
+}
+
+		</script>
+	</head>
+	<body onload="init()">
+		<canvas id="bg" width="1920" height="1080"></canvas>
+		<div style="position:absolute;top:0; left:0; background-color:#FFF" id="FPS"></div>
+	</body>
+</html>

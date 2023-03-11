@@ -1,0 +1,20 @@
+[
+  {
+    "from": 406,
+    "to": 88,
+    "label": "Blue",
+    "action": "Confirm, interacting"
+  },
+  {
+    "from": 405,
+    "to": 83,
+    "label": "Yellow",
+    "action": "Assist mode"
+  },
+  {
+    "from": 48,
+    "to": 67,
+    "label": "Num 0",
+    "action": "Restart Room"
+  }
+]
