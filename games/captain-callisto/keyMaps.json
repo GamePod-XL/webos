@@ -1,14 +1,14 @@
 [
   {
-    "from": "8",
-    "to": " ",
-    "label": "Num 8",
+    "from": 406,
+    "to": 32,
+    "label": "Blue",
     "action": "Jump"
   },
   {
-    "from": "0",
-    "to": "x",
-    "label": "Num 0",
+    "from": 405,
+    "to": 88,
+    "label": "Yellow",
     "action": "Jetpack"
   }
 ]
