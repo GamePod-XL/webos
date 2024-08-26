@@ -34,14 +34,6 @@
     "year": 2019
   },
   {
-    "id": "mimstris",
-    "title": "Mimstris",
-    "year": 2016,
-    "description": "An arcade puzzle game.",
-    "developer": "Mims H. Wright",
-    "developerSocialPage": "https://github.com/mimshwright/"
-  },
-  {
     "id": "birds-with-guns",
     "title": "Birds with Guns",
     "year": 2021,
