@@ -307,7 +307,7 @@ function gamepadBindKeys(strMapping) {
   // A/B/Select/Start to the first four buttons,
   // and U/D/L/R to the first two axes.
 
-  if (strMapping === GAMEPAD_KEYMAP_STANDARD_STR) gp.keybinds = GAMEPAD_KEYMAP_STANDARD;else gp.keybinds = GAMEPAD_KEYMAP_DEFAULT;
+  if (strMapping === GAMEPAD_KEYMAP_STANDARD_STR) gp.keybinds = GAMEPAD_KEYMAP_STANDARD; else gp.keybinds = GAMEPAD_KEYMAP_DEFAULT;
 }
 function gamepadCacheValues(gamepad) {
   // Read Buttons
@@ -340,12 +340,12 @@ function gamepadHandleButton(keyBind) {
   var buttonCache;
 
   // Select button / axis cache based on key bind type
-  if (keyBind.type === "button") buttonCache = gp.buttons;else if (keyBind.type === "axis") buttonCache = gp.axes;
+  if (keyBind.type === "button") buttonCache = gp.buttons; else if (keyBind.type === "axis") buttonCache = gp.axes;
 
   // Make sure the button exists in the cache array
   if (keyBind.gp_button < buttonCache.changed.length) {
     // Send the button state if it's changed
-    if (buttonCache.changed[keyBind.gp_button]) if (buttonCache.cur[keyBind.gp_button]) GameBoyKeyDown(keyBind.gb_key);else GameBoyKeyUp(keyBind.gb_key);
+    if (buttonCache.changed[keyBind.gp_button]) if (buttonCache.cur[keyBind.gp_button]) GameBoyKeyDown(keyBind.gb_key); else GameBoyKeyUp(keyBind.gb_key);
   }
 }
 function gamepadGetCurrent() {
