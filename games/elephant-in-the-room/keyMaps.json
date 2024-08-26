@@ -1,8 +1,8 @@
 [
   {
-    "from": 406,
+    "from": 48,
     "to": 88,
-    "label": "Blue",
+    "label": "Num 0",
     "action": "Confirm, interacting"
   },
   {
@@ -12,9 +12,9 @@
     "action": "Assist mode"
   },
   {
-    "from": 48,
+    "from": 56,
     "to": 67,
-    "label": "Num 0",
+    "label": "Num 8",
     "action": "Restart Room"
   }
 ]

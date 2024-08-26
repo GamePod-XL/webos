@@ -1,8 +1,22 @@
 [
-  {
-    "from": 406,
-    "to": 32,
-    "label": "Blue",
-    "action": "Fire"
-  }
+  [
+    {
+      "from": 48,
+      "to": 88,
+      "label": "Num 0",
+      "action": "Fire"
+    },
+    {
+      "from": 406,
+      "to": 88,
+      "label": "Blue",
+      "action": "Fire"
+    },
+    {
+      "from": 56,
+      "to": 90,
+      "label": "Num 8",
+      "action": "Special Attack"
+    }
+  ]
 ]

@@ -2,7 +2,7 @@
   {
     "id": "ozelotl",
     "title": "Ozelotl",
-    "description": "Experience an epic space adventure with Ozelotl! After a catastrophic event wipes out humanity on Earth, you must embark on a daring mission to reclaim it. Join the crew of the aircraft carrier Tebeyolotl as they journey through the depths of space, armed with 24 different types of Ozelotl. Will you be able to save humanity and restore the planet to its former glory?",
+    "description": "Experience an epic space adventure with Ozelotl! After a catastrophic event wipes out humanity on Earth, you must embark on a daring mission to reclaim it.",
     "developer": "Catzpaw",
     "developerSocialPage": "https://twitter.com/catzpaw",
     "year": 2019
@@ -14,14 +14,6 @@
     "description": "An Owl-some Roguelike Twin-Stick Shooter\n\nAre you ready to have a quacking time? Toucan play this egg-citing game right now! Made by an im-peck-able team of quail-ified developers, you're gonna have no egrets.\n\nEvil Robofox has captured all the birds to steal their eggs. The bird kingdom is counting on you to save them!",
     "developer": "Yolwoocle & Gouspourd",
     "developerSocialPage": "https://yolwoocle.itch.io/birds-with-guns"
-  },
-  {
-    "id": "cherry-rescue",
-    "title": "Cherry Rescue",
-    "year": 2020,
-    "description": "Barry's sister, Mary, has been captured by a mysterious foe, and you must rescue her!\n\nRun, jump, and stomp the baddies who stand in your way, and get to the end of each level unscathed!\n\nMusic by Scott Semanski.",
-    "developer": "GrafxKid",
-    "developerSocialPage": "https://grafxkid.itch.io/cherry-rescue"
   },
   {
     "id": "elephant-in-the-room",
@@ -51,6 +43,14 @@
     "developerSocialPage": "https://donitz.itch.io/"
   },
   {
+    "id": "cherry-rescue",
+    "title": "Cherry Rescue",
+    "year": 2020,
+    "description": "Barry's sister, Mary, has been captured by a mysterious foe, and you must rescue her!\n\nRun, jump, and stomp the baddies who stand in your way, and get to the end of each level unscathed!\n\nMusic by Scott Semanski.",
+    "developer": "GrafxKid",
+    "developerSocialPage": "https://grafxkid.itch.io/cherry-rescue"
+  },
+  {
     "id": "retroid",
     "title": "Retroid",
     "year": 2016,
@@ -59,15 +59,15 @@
     "developerSocialPage": "https://the-green-screen.com/"
   },
   {
-    "-----": "Deprecated Games below! -------, use `_id instead of id"
-  },
-  {
     "id": "ufo-blocks",
     "title": "UFO Blocks",
     "year": 2022,
     "description": "It's another day on the job at the block factory, and the blocks just keep on coming! Use your trusty tractor beam to pick up blocks and place them somewhere else. Match three in a row of the same type to remove them. Try to chain together combos, but be sure to move quickly- if the blocks reach the top, it's game over!",
     "developer": "bluswimmer",
     "developerSocialPage": "https://bluswimmer.newgrounds.com"
+  },
+  {
+    "-----": "Deprecated Games below! -------, use `_id instead of id"
   },
   {
     "_id": "captain-callisto",
@@ -83,7 +83,7 @@
   },
 
   {
-    "id": "space-tribute",
+    "_id": "space-tribute",
     "title": "Space Tribute",
     "year": 2016,
     "description": "Space Tribute is a shoot'em up game where you have to face old games enemies.\nCareful with the boss, it is.... unstable\nEach level increases the speed, how far will you go?\n",

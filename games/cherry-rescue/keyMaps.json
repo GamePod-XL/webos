@@ -16,5 +16,11 @@
     "to": 67,
     "label": "Num 8",
     "action": "Special Attack"
+  },
+  {
+    "from": 32,
+    "to": 13,
+    "label": "Space",
+    "action": "Start"
   }
 ]
