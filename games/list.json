@@ -7,18 +7,6 @@
     "developer": "GregPeck"
   },
   {
-    "id": "captain-callisto",
-    "title": "Captain Callisto",
-    "description": "The Adventures of Captain Callisto is a short 3D action game.",
-    "developer": "Captain Callisto"
-  },
-  {
-    "id": "asteroids",
-    "title": "Asteroids",
-    "description": "Asteroids is a space-themed multidirectional shooter arcade game, control the spaceship to destroy asteroids and flying saucers.",
-    "developer": "Doug McInnes"
-  },
-  {
     "id": "elephant-in-the-room",
     "title": "Elephant in the Room",
     "description": "Small puzzle game created in PICO-8 for Github Game Off 2022. Help the mouse to leave the rooms by getting the elephant to break the door!",
@@ -44,5 +32,68 @@
     "developer": "Catzpaw",
     "developerSocialPage": "https://twitter.com/catzpaw",
     "year": 2019
+  },
+  {
+    "id": "mimstris",
+    "title": "Mimstris",
+    "year": 2016,
+    "description": "An arcade puzzle game.",
+    "developer": "Mims H. Wright",
+    "developerSocialPage": "https://github.com/mimshwright/"
+  },
+  {
+    "id": "birds-with-guns",
+    "title": "Birds with Guns",
+    "year": 2021,
+    "description": "An Owl-some Roguelike Twin-Stick Shooter\n\nAre you ready to have a quacking time? Toucan play this egg-citing game right now! Made by an im-peck-able team of quail-ified developers, you're gonna have no egrets.\n\nEvil Robofox has captured all the birds to steal their eggs. The bird kingdom is counting on you to save them!",
+    "developer": "Yolwoocle & Gouspourd",
+    "developerSocialPage": "https://yolwoocle.itch.io/birds-with-guns"
+  },
+  {
+    "id": "cherry-rescue",
+    "title": "Cherry Rescue",
+    "year": 2020,
+    "description": "Barry's sister, Mary, has been captured by a mysterious foe, and you must rescue her!\n\nRun, jump, and stomp the baddies who stand in your way, and get to the end of each level unscathed!\n\nMusic by Scott Semanski.",
+    "developer": "GrafxKid",
+    "developerSocialPage": "https://grafxkid.itch.io/cherry-rescue"
+  },
+  {
+    "id": "envisionator",
+    "title": "envisionator",
+    "year": 2018,
+    "description": "This is a short puzzle game about escaping a building lockdown with the aid of your trusty robot friend.",
+    "developer": "Donitz",
+    "developerSocialPage": "https://donitz.itch.io/"
+  },
+  {
+    "id": "retroid",
+    "title": "Retroid",
+    "year": 2016,
+    "description": "“Retroid” is a retro-style game based on classic arcade games, that challenges players to control a paddle at the bottom of the screen and reflect a ball to destroy bricks at the top.\n\nWith 20 levels, 5 level designs, 6 bonus items (plus 1 malus item), 8 chiptune tracks, an epic boss battle",
+    "developer": "Jonas Fischbach",
+    "developerSocialPage": "https://the-green-screen.com/"
+  },
+  {
+    "-----": "Deprecated Games below! -------, use `_id instead of id"
+  },
+  {
+    "id": "ufo-blocks",
+    "title": "UFO Blocks",
+    "year": 2022,
+    "description": "It's another day on the job at the block factory, and the blocks just keep on coming! Use your trusty tractor beam to pick up blocks and place them somewhere else. Match three in a row of the same type to remove them. Try to chain together combos, but be sure to move quickly- if the blocks reach the top, it's game over!",
+    "developer": "bluswimmer",
+    "developerSocialPage": "https://bluswimmer.newgrounds.com"
+  },
+  {
+    "_id": "captain-callisto",
+    "title": "Captain Callisto",
+    "description": "The Adventures of Captain Callisto is a short 3D action game.",
+    "developer": "Captain Callisto"
+  },
+  {
+    "_id": "asteroids",
+    "title": "Asteroids",
+    "description": "Asteroids is a space-themed multidirectional shooter arcade game, control the spaceship to destroy asteroids and flying saucers.",
+    "developer": "Doug McInnes"
   }
 ]
