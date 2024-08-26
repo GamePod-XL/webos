@@ -22,12 +22,6 @@
     "developer": "Ekaktusz, Zahkros, Bartalomew, Mate Hirsch, Lorinc Fazakas"
   },
   {
-    "id": "birdie-bartender",
-    "title": "Birdie Bartender",
-    "description": "Birdie Bartender is an arcade GameBoy-style time-management game. You manage a Birdie Bar and your job is to serve drinks like beer and wine and help Birdie the bartender earn some money so she can afford a nice vacation. Do a day job as bartender and serve quick to earn more money and make your customers happy.\nMusic by Scott Semanski.",
-    "developer": "Mike Bedsole"
-  },
-  {
     "id": "twistbot",
     "title": "Twistbot",
     "description": "You play as a little droid trying to escape a tower. With the ability to switch perspectives after you reach a certain level.",
@@ -43,8 +37,16 @@
     "developerSocialPage": "https://donitz.itch.io/"
   },
   {
+    "id": "ufo-blocks",
+    "title": "UFO Blocks",
+    "year": 2022,
+    "description": "It's another day on the job at the block factory, and the blocks just keep on coming! Use your trusty tractor beam to pick up blocks and place them somewhere else. Match three in a row of the same type to remove them. Try to chain together combos, but be sure to move quickly- if the blocks reach the top, it's game over!",
+    "developer": "bluswimmer",
+    "developerSocialPage": "https://bluswimmer.newgrounds.com"
+  },
+  {
     "id": "cherry-rescue",
-    "title": "Cherry Rescue",
+    "title": "[Coming Soon] Cherry Rescue",
     "year": 2020,
     "description": "Barry's sister, Mary, has been captured by a mysterious foe, and you must rescue her!\n\nRun, jump, and stomp the baddies who stand in your way, and get to the end of each level unscathed!\n\nMusic by Scott Semanski.",
     "developer": "GrafxKid",
@@ -52,19 +54,17 @@
   },
   {
     "id": "retroid",
-    "title": "Retroid",
+    "title": "[Coming Soon] Retroid",
     "year": 2016,
     "description": "“Retroid” is a retro-style game based on classic arcade games, that challenges players to control a paddle at the bottom of the screen and reflect a ball to destroy bricks at the top.\n\nWith 20 levels, 5 level designs, 6 bonus items (plus 1 malus item), 8 chiptune tracks, an epic boss battle",
     "developer": "Jonas Fischbach",
     "developerSocialPage": "https://the-green-screen.com/"
   },
   {
-    "id": "ufo-blocks",
-    "title": "UFO Blocks",
-    "year": 2022,
-    "description": "It's another day on the job at the block factory, and the blocks just keep on coming! Use your trusty tractor beam to pick up blocks and place them somewhere else. Match three in a row of the same type to remove them. Try to chain together combos, but be sure to move quickly- if the blocks reach the top, it's game over!",
-    "developer": "bluswimmer",
-    "developerSocialPage": "https://bluswimmer.newgrounds.com"
+    "id": "[Coming Soon] birdie-bartender",
+    "title": "Birdie Bartender",
+    "description": "Birdie Bartender is an arcade GameBoy-style time-management game. You manage a Birdie Bar and your job is to serve drinks like beer and wine and help Birdie the bartender earn some money so she can afford a nice vacation. Do a day job as bartender and serve quick to earn more money and make your customers happy.\nMusic by Scott Semanski.",
+    "developer": "Mike Bedsole"
   },
   {
     "-----": "Deprecated Games below! -------, use `_id instead of id"
