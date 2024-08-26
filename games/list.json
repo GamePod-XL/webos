@@ -1,12 +1,5 @@
 [
   {
-    "id": "space-tribute",
-    "title": "Space Tribute",
-    "year": 2016,
-    "description": "Space Tribute is a shoot'em up game where you have to face old games enemies.\nCareful with the boss, it is.... unstable\nEach level increases the speed, how far will you go?\n",
-    "developer": "GregPeck"
-  },
-  {
     "id": "elephant-in-the-room",
     "title": "Elephant in the Room",
     "description": "Small puzzle game created in PICO-8 for Github Game Off 2022. Help the mouse to leave the rooms by getting the elephant to break the door!",
@@ -66,15 +59,15 @@
     "developerSocialPage": "https://the-green-screen.com/"
   },
   {
-    "-------": "Deprecated Games below! -------, use `_id instead of id"
-  },
-  {
     "id": "ufo-blocks",
     "title": "UFO Blocks",
     "year": 2022,
     "description": "It's another day on the job at the block factory, and the blocks just keep on coming! Use your trusty tractor beam to pick up blocks and place them somewhere else. Match three in a row of the same type to remove them. Try to chain together combos, but be sure to move quickly- if the blocks reach the top, it's game over!",
     "developer": "bluswimmer",
     "developerSocialPage": "https://bluswimmer.newgrounds.com"
+  },
+  {
+    "-------": "Deprecated Games below! -------, use `_id instead of id"
   },
   {
     "_id": "captain-callisto",
@@ -87,5 +80,12 @@
     "title": "Asteroids",
     "description": "Asteroids is a space-themed multidirectional shooter arcade game, control the spaceship to destroy asteroids and flying saucers.",
     "developer": "Doug McInnes"
+  },
+  {
+    "_id": "space-tribute",
+    "title": "Space Tribute",
+    "year": 2016,
+    "description": "Space Tribute is a shoot'em up game where you have to face old games enemies.\nCareful with the boss, it is.... unstable\nEach level increases the speed, how far will you go?\n",
+    "developer": "GregPeck"
   }
 ]
