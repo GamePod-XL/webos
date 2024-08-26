@@ -1,24 +1,5 @@
 [
   {
-    "id": "elephant-in-the-room",
-    "title": "Elephant in the Room",
-    "description": "Small puzzle game created in PICO-8 for Github Game Off 2022. Help the mouse to leave the rooms by getting the elephant to break the door!",
-    "developer": "Ekaktusz, Zahkros, Bartalomew, Mate Hirsch, Lorinc Fazakas"
-  },
-  {
-    "id": "birdie-bartender",
-    "title": "Birdie Bartender",
-    "description": "Birdie Bartender is an arcade GameBoy-style time-management game. You manage a Birdie Bar and your job is to serve drinks like beer and wine and help Birdie the bartender earn some money so she can afford a nice vacation. Do a day job as bartender and serve quick to earn more money and make your customers happy.\nMusic by Scott Semanski.",
-    "developer": "Mike Bedsole"
-  },
-  {
-    "id": "twistbot",
-    "title": "Twistbot",
-    "description": "You play as a little droid trying to escape a tower. With the ability to switch perspectives after you reach a certain level.",
-    "developer": "Donitz",
-    "year": 2020
-  },
-  {
     "id": "ozelotl",
     "title": "Ozelotl",
     "description": "Experience an epic space adventure with Ozelotl! After a catastrophic event wipes out humanity on Earth, you must embark on a daring mission to reclaim it. Join the crew of the aircraft carrier Tebeyolotl as they journey through the depths of space, armed with 24 different types of Ozelotl. Will you be able to save humanity and restore the planet to its former glory?",
@@ -43,6 +24,25 @@
     "developerSocialPage": "https://grafxkid.itch.io/cherry-rescue"
   },
   {
+    "id": "elephant-in-the-room",
+    "title": "Elephant in the Room",
+    "description": "Small puzzle game created in PICO-8 for Github Game Off 2022. Help the mouse to leave the rooms by getting the elephant to break the door!",
+    "developer": "Ekaktusz, Zahkros, Bartalomew, Mate Hirsch, Lorinc Fazakas"
+  },
+  {
+    "id": "birdie-bartender",
+    "title": "Birdie Bartender",
+    "description": "Birdie Bartender is an arcade GameBoy-style time-management game. You manage a Birdie Bar and your job is to serve drinks like beer and wine and help Birdie the bartender earn some money so she can afford a nice vacation. Do a day job as bartender and serve quick to earn more money and make your customers happy.\nMusic by Scott Semanski.",
+    "developer": "Mike Bedsole"
+  },
+  {
+    "id": "twistbot",
+    "title": "Twistbot",
+    "description": "You play as a little droid trying to escape a tower. With the ability to switch perspectives after you reach a certain level.",
+    "developer": "Donitz",
+    "year": 2020
+  },
+  {
     "id": "envisionator",
     "title": "envisionator",
     "year": 2018,
@@ -59,15 +59,15 @@
     "developerSocialPage": "https://the-green-screen.com/"
   },
   {
+    "-----": "Deprecated Games below! -------, use `_id instead of id"
+  },
+  {
     "id": "ufo-blocks",
     "title": "UFO Blocks",
     "year": 2022,
     "description": "It's another day on the job at the block factory, and the blocks just keep on coming! Use your trusty tractor beam to pick up blocks and place them somewhere else. Match three in a row of the same type to remove them. Try to chain together combos, but be sure to move quickly- if the blocks reach the top, it's game over!",
     "developer": "bluswimmer",
     "developerSocialPage": "https://bluswimmer.newgrounds.com"
-  },
-  {
-    "-------": "Deprecated Games below! -------, use `_id instead of id"
   },
   {
     "_id": "captain-callisto",
@@ -81,8 +81,9 @@
     "description": "Asteroids is a space-themed multidirectional shooter arcade game, control the spaceship to destroy asteroids and flying saucers.",
     "developer": "Doug McInnes"
   },
+
   {
-    "_id": "space-tribute",
+    "id": "space-tribute",
     "title": "Space Tribute",
     "year": 2016,
     "description": "Space Tribute is a shoot'em up game where you have to face old games enemies.\nCareful with the boss, it is.... unstable\nEach level increases the speed, how far will you go?\n",
